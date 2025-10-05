@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>AI API Test</title>
+</head>
+<body>
+    <h1>AI API Test</h1>
+    <button onclick="testAPI()">Test AI API</button>
+    <div id="result"></div>
+
+    <script>
+        async function testAPI() {
+            const apiKey = 'AIzaSyCof67eQobfCzwod-dUW_gto5lAt-9wItc';
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${apiKey}`;
+            
+            const requestBody = {
+                contents: [{
+                    parts: [{
+                        text: "Say hello"
+                    }]
+                }]
+            };
+
+            try {
+                console.log('Testing API with:', url);
+                console.log('Request body:', requestBody);
+                
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(requestBody)
+                });
+
+                console.log('Response status:', response.status);
+                console.log('Response headers:', Object.fromEntries(response.headers.entries()));
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error('Error:', errorText);
+                    document.getElementById('result').innerHTML = `Error: ${response.status} - ${errorText}`;
+                    return;
+                }
+
+                const data = await response.json();
+                console.log('Response data:', data);
+                
+                if (data.candidates && data.candidates[0] && data.candidates[0].content) {
+                    const responseText = data.candidates[0].content.parts[0].text;
+                    document.getElementById('result').innerHTML = `Success! AI Response: ${responseText}`;
+                } else {
+                    document.getElementById('result').innerHTML = `Invalid response format: ${JSON.stringify(data)}`;
+                }
+            } catch (error) {
+                console.error('Fetch error:', error);
+                document.getElementById('result').innerHTML = `Fetch error: ${error.message}`;
+            }
+        }
+    </script>
+</body>
+</html>
